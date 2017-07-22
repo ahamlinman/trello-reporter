@@ -17,7 +17,7 @@ def is_card_old(card):
     return datetime.now(tz=card_date.tzinfo) - card_date > timedelta(days=7)
 
 def format_card_email(cards):
-    lines = ['* {}'.format(c['name']) for c in cards]
+    lines = ['• {}'.format(c['name']) for c in cards]
     heading = 'Please review the following Trello cards. They are at least ' \
             'one week old.'
 
