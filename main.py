@@ -42,15 +42,22 @@ def send_card_email(email_address, body):
         }
     )
 
-trello_key = os.getenv('TRELLO_KEY')
-trello_token = os.getenv('TRELLO_TOKEN')
-trello_list_id = os.getenv('TRELLO_LIST_ID')
+def run_report():
+    trello_key = os.getenv('TRELLO_KEY')
+    trello_token = os.getenv('TRELLO_TOKEN')
+    trello_list_id = os.getenv('TRELLO_LIST_ID')
 
-all_cards = get_cards_from_trello(trello_key, trello_token, trello_list_id)
-old_cards = filter(is_card_old, all_cards)
+    all_cards = get_cards_from_trello(trello_key, trello_token, trello_list_id)
+    old_cards = filter(is_card_old, all_cards)
 
-email_address = os.getenv('REPORT_EMAIL_ADDRESS')
-body = format_card_email(old_cards)
-result = send_card_email(email_address, body)
+    email_address = os.getenv('REPORT_EMAIL_ADDRESS')
+    body = format_card_email(old_cards)
+    result = send_card_email(email_address, body)
 
-pprint(result)
+    pprint(result)
+
+def lambda_handler(event, context):
+    run_report()
+
+if __name__ == '__main__':
+    run_report()
