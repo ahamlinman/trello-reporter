@@ -2,6 +2,8 @@
 
 from datetime import datetime, timedelta, timezone
 from dateutil.parser import parse as parse_date
+from pprint import pprint
+import boto3
 import os
 import requests
 
@@ -23,6 +25,23 @@ def format_card_email(cards):
 
     return '{}\n\n{}'.format(heading, '\n'.join(lines))
 
+def send_card_email(email_address, body):
+    ses = boto3.client('ses')
+    return ses.send_email(
+        Source=email_address,
+        Destination={ 'ToAddresses': [email_address] },
+        Message={
+            'Subject': {
+                'Data': 'Trello Old Cards Report',
+            },
+            'Body': {
+                'Text': {
+                    'Data': body,
+                }
+            }
+        }
+    )
+
 trello_key = os.getenv('TRELLO_KEY')
 trello_token = os.getenv('TRELLO_TOKEN')
 trello_list_id = os.getenv('TRELLO_LIST_ID')
@@ -30,4 +49,8 @@ trello_list_id = os.getenv('TRELLO_LIST_ID')
 all_cards = get_cards_from_trello(trello_key, trello_token, trello_list_id)
 old_cards = filter(is_card_old, all_cards)
 
-print(format_card_email(old_cards))
+email_address = os.getenv('REPORT_EMAIL_ADDRESS')
+body = format_card_email(old_cards)
+result = send_card_email(email_address, body)
+
+pprint(result)
