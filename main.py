@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-import requests
+from datetime import datetime, timedelta, timezone
+from dateutil.parser import parse as parse_date
 import os
+import requests
 
 def get_cards_from_trello(key, token, list_id):
     url = 'https://api.trello.com/1/lists/{}/cards'.format(list_id)
@@ -10,8 +12,15 @@ def get_cards_from_trello(key, token, list_id):
     r = requests.get(url, params=params)
     return r.json()
 
+def is_card_old(card):
+    card_date = parse_date(card['dateLastActivity'])
+    return datetime.now(tz=card_date.tzinfo) - card_date > timedelta(days=7)
+
 trello_key = os.getenv('TRELLO_KEY')
 trello_token = os.getenv('TRELLO_TOKEN')
 trello_list_id = os.getenv('TRELLO_LIST_ID')
 
-print(get_cards_from_list(trello_key, trello_token, trello_list_id))
+all_cards = get_cards_from_trello(trello_key, trello_token, trello_list_id)
+old_cards = filter(is_card_old, all_cards)
+
+print(list(old_cards))
