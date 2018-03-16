@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 print_header () {
   printf "\e[1;35m%s\e[0m\n" "$@"
