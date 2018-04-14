@@ -7,29 +7,33 @@ import boto3
 import os
 import requests
 
+
 def get_cards_from_trello(key, token, list_id):
     url = 'https://api.trello.com/1/lists/{}/cards'.format(list_id)
-    params = { 'key': key, 'token': token }
+    params = {'key': key, 'token': token}
 
     r = requests.get(url, params=params)
     return r.json()
+
 
 def is_card_old(card):
     card_date = parse_date(card['dateLastActivity'])
     return datetime.now(tz=card_date.tzinfo) - card_date > timedelta(days=7)
 
+
 def format_card_email(cards):
     lines = ['• {}'.format(c['name']) for c in cards]
     heading = 'Please review the following Trello cards. They are at least ' \
-            'one week old.'
+              'one week old.'
 
     return '{}\n\n{}'.format(heading, '\n'.join(lines))
+
 
 def send_card_email(email_address, body):
     ses = boto3.client('ses')
     return ses.send_email(
         Source=email_address,
-        Destination={ 'ToAddresses': [email_address] },
+        Destination={'ToAddresses': [email_address]},
         Message={
             'Subject': {
                 'Data': 'Trello Old Cards Report',
@@ -41,6 +45,7 @@ def send_card_email(email_address, body):
             }
         }
     )
+
 
 def run_report():
     trello_key = os.getenv('TRELLO_KEY')
@@ -56,8 +61,10 @@ def run_report():
 
     pprint(result)
 
+
 def lambda_handler(event, context):
     run_report()
+
 
 if __name__ == '__main__':
     run_report()
