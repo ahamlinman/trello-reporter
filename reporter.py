@@ -23,8 +23,10 @@ def is_card_old(card):
 
 def format_card_email(cards):
     lines = ['• {}'.format(c['name']) for c in cards]
-    heading = 'Please review the following Trello cards. They are at least ' \
-              'one week old.'
+    heading = (
+        'Please review the following Trello cards. They are at least one week '
+        'old.'
+    )
 
     return '{}\n\n{}'.format(heading, '\n'.join(lines))
 
