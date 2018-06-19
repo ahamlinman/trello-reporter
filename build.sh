@@ -18,7 +18,7 @@ print_info "Copying files from root"
 cp ../*.py .
 
 print_info "Installing dependencies using pip"
-pip install -r ../requirements.txt -t .
+pip install -r <(cd .. && pipenv run pip freeze) -t .
 
 print_info "Creating ZIP package"
 zip -r ../lambda-package.zip ./*
