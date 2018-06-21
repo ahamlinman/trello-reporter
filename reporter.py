@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
 
 from datetime import datetime, timedelta, timezone
-from dateutil.parser import parse as parse_date
 from pprint import pprint
-import boto3
 import os
-import requests
 
+from dateutil.parser import parse as parse_date
+import boto3
 
-def get_cards_from_trello(key, token, list_id):
-    url = 'https://api.trello.com/1/lists/{}/cards'.format(list_id)
-    params = {'key': key, 'token': token}
-
-    r = requests.get(url, params=params)
-    return r.json()
+from trello import TrelloClient
 
 
 def is_card_old(card):
@@ -54,7 +48,8 @@ def run_report():
     trello_token = os.getenv('TRELLO_TOKEN')
     trello_list_id = os.getenv('TRELLO_LIST_ID')
 
-    all_cards = get_cards_from_trello(trello_key, trello_token, trello_list_id)
+    trello = TrelloClient(trello_key, trello_token)
+    all_cards = trello.cards_in_list(trello_list_id)
     old_cards = filter(is_card_old, all_cards)
 
     email_address = os.getenv('REPORT_EMAIL_ADDRESS')
