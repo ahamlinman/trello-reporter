@@ -8,6 +8,7 @@ import os
 from dateutil.parser import parse as parse_date
 
 from mailer import send_email
+from reporter import Reporter
 from trello import TrelloClient
 
 
@@ -16,18 +17,15 @@ def is_card_old(card):
     return datetime.now(tz=card_date.tzinfo) - card_date > timedelta(days=7)
 
 
-def format_card_list(cards):
-    lines = ['• {}'.format(c['name']) for c in cards]
-    return '\n'.join(lines)
-
-
 def format_report(list_name, cards):
-    heading = (
-        'Please review the following cards on the {name} list. '
-        'They are at least one week old.'
-    ).format(name=list_name)
+    reporter = Reporter()
+    reporter.add_section(list_name, [c['name'] for c in cards])
 
-    return '{}\n\n{}'.format(heading, format_card_list(cards))
+    heading = (
+        'The following cards have not been modified in some time. '
+        'Please review them.'
+    )
+    return reporter.format(heading)
 
 
 def run_report(lists):
