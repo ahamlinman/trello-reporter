@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 from pprint import pprint
+import argparse
 import json
 import os
 
@@ -17,12 +18,9 @@ def older_than(date_str, delta_spec):
     return datetime.now(tz=date.tzinfo) - date > timedelta(**delta_spec)
 
 
-def run_report(config):
-    trello_key = os.getenv('TRELLO_KEY')
-    trello_token = os.getenv('TRELLO_TOKEN')
-
-    trello = TrelloClient(trello_key, trello_token)
+def build_report(config, trello):
     reporter = Reporter()
+
     for list_spec in config['lists']:
         trello_list = trello.list(list_spec['listId'])
 
@@ -39,16 +37,22 @@ def run_report(config):
         )
 
     if len(reporter.sections) == 0:
-        print('(no old cards)')
         return
 
-    report_text = reporter.format(config['heading'])
+    return reporter.format(config['heading'])
 
-    email_address = os.getenv('REPORT_EMAIL_ADDRESS')
-    if email_address is not None:
-        print('(sending mail to {})'.format(email_address))
+
+def run_report(config, email=False):
+    trello = TrelloClient(os.getenv('TRELLO_KEY'), os.getenv('TRELLO_TOKEN'))
+    report_text = build_report(config, trello)
+
+    if report_text is None:
+        print('(nothing to report)')
+        return
+
+    if email:
         result = send_email(
-            email_address,
+            config['emailAddress'],
             config['subject'],
             report_text
         )
@@ -58,11 +62,19 @@ def run_report(config):
 
 
 def lambda_handler(event, context):
-    run_report(event)
+    run_report(event, True)
 
 
 if __name__ == '__main__':
-    with open('config.json', 'r') as f:
+    parser = argparse.ArgumentParser(description='Report on old Trello cards.')
+    parser.add_argument('--config', type=str, default='config.json',
+                        metavar='FILE', help='path to the JSON config file '
+                        '(default: config.json)')
+    parser.add_argument('--email', action='store_true',
+                        help='send an email instead of printing the report')
+    args = parser.parse_args()
+
+    with open(args.config, 'r') as f:
         config = json.load(f)
 
-    run_report(config)
+    run_report(config, args.email)
