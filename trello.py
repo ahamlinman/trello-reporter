@@ -19,4 +19,5 @@ class TrelloClient:
         }
 
         r = requests.get(url, params=params)
+        r.raise_for_status()
         return r.json()
