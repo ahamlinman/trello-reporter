@@ -8,9 +8,15 @@ class TrelloClient:
         self.key = key
         self.token = token
 
-    def cards_in_list(self, list_id):
-        url = 'https://api.trello.com/1/lists/{}/cards'.format(list_id)
-        params = {'key': self.key, 'token': self.token}
+    def list(self, list_id):
+        url = 'https://api.trello.com/1/lists/{}'.format(list_id)
+        params = {
+            'key': self.key,
+            'token': self.token,
+            'fields': 'name',
+            'cards': 'open',
+            'card_fields': 'name,dateLastActivity'
+        }
 
         r = requests.get(url, params=params)
         return r.json()

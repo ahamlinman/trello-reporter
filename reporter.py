@@ -20,11 +20,11 @@ def format_card_list(cards):
     return '\n'.join(lines)
 
 
-def format_report(cards):
+def format_report(list_name, cards):
     heading = (
-        'Please review the following Trello cards. They are at least one week '
-        'old.'
-    )
+        'Please review the following cards on the {name} list. '
+        'They are at least one week old.'
+    ).format(name=list_name)
 
     return '{}\n\n{}'.format(heading, format_card_list(cards))
 
@@ -35,10 +35,12 @@ def run_report():
     trello_list_id = os.getenv('TRELLO_LIST_ID')
 
     trello = TrelloClient(trello_key, trello_token)
-    all_cards = trello.cards_in_list(trello_list_id)
+    trello_list = trello.list(trello_list_id)
+    all_cards = trello_list['cards']
+    list_name = trello_list['name']
 
     old_cards = filter(is_card_old, all_cards)
-    report = format_report(old_cards)
+    report = format_report(list_name, old_cards)
 
     email_address = os.getenv('REPORT_EMAIL_ADDRESS')
     if email_address is not None:
