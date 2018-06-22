@@ -6,12 +6,14 @@ window.
 
 I originally created the reporter to help keep my Trello-based [GTD] workflow
 on track. Thus, it's primarily designed to run on [AWS Lambda], be triggered by
-scheduled CloudWatch events, and send email reports with Amazon SES. However,
-it can also run locally and print reports directly to a terminal.
+scheduled [CloudWatch] events, and send email reports with [Amazon SES].
+However, it can also run locally and print reports directly to a terminal.
 
 [Trello]: https://trello.com/
 [GTD]: https://gettingthingsdone.com/
 [AWS Lambda]: https://aws.amazon.com/lambda/
+[CloudWatch]: https://aws.amazon.com/cloudwatch/
+[Amazon SES]: https://aws.amazon.com/ses/
 
 ## Setup
 
