@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 from pprint import pprint
+import json
 import os
 
 from dateutil.parser import parse as parse_date
@@ -29,13 +30,12 @@ def format_report(list_name, cards):
     return '{}\n\n{}'.format(heading, format_card_list(cards))
 
 
-def run_report():
+def run_report(lists):
     trello_key = os.getenv('TRELLO_KEY')
     trello_token = os.getenv('TRELLO_TOKEN')
-    trello_list_id = os.getenv('TRELLO_LIST_ID')
 
     trello = TrelloClient(trello_key, trello_token)
-    trello_list = trello.list(trello_list_id)
+    trello_list = trello.list(lists[0]['listId'])
     all_cards = trello_list['cards']
     list_name = trello_list['name']
 
@@ -52,8 +52,11 @@ def run_report():
 
 
 def lambda_handler(event, context):
-    run_report()
+    run_report(event)
 
 
 if __name__ == '__main__':
-    run_report()
+    with open('lists.json', 'r') as f:
+        lists = json.load(f)
+
+    run_report(lists)
