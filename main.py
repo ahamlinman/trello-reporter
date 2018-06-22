@@ -42,18 +42,14 @@ def run_report(config):
         print('(no old cards)')
         return
 
-    heading = (
-        'The following cards have not been acted upon in some time. '
-        'Please review them.'
-    )
-    report_text = reporter.format(heading)
+    report_text = reporter.format(config['heading'])
 
     email_address = os.getenv('REPORT_EMAIL_ADDRESS')
     if email_address is not None:
         print('(sending mail to {})'.format(email_address))
         result = send_email(
             email_address,
-            'Trello Old Cards Report',
+            config['subject'],
             report_text
         )
         pprint(result)
