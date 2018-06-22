@@ -12,20 +12,9 @@ from reporter import Reporter
 from trello import TrelloClient
 
 
-def is_card_old(card):
-    card_date = parse_date(card['dateLastActivity'])
-    return datetime.now(tz=card_date.tzinfo) - card_date > timedelta(days=7)
-
-
-def format_report(list_name, cards):
-    reporter = Reporter()
-    reporter.add_section(list_name, [c['name'] for c in cards])
-
-    heading = (
-        'The following cards have not been modified in some time. '
-        'Please review them.'
-    )
-    return reporter.format(heading)
+def older_than(date_str, delta_spec):
+    date = parse_date(date_str)
+    return datetime.now(tz=date.tzinfo) - date > timedelta(**delta_spec)
 
 
 def run_report(lists):
@@ -33,20 +22,43 @@ def run_report(lists):
     trello_token = os.getenv('TRELLO_TOKEN')
 
     trello = TrelloClient(trello_key, trello_token)
-    trello_list = trello.list(lists[0]['listId'])
-    all_cards = trello_list['cards']
-    list_name = trello_list['name']
+    reporter = Reporter()
+    for list_spec in lists:
+        trello_list = trello.list(list_spec['listId'])
 
-    old_cards = filter(is_card_old, all_cards)
-    report = format_report(list_name, old_cards)
+        old_cards = [
+            card for card in trello_list['cards']
+            if older_than(card['dateLastActivity'], list_spec['timeDelta'])
+        ]
+        if len(old_cards) == 0:
+            continue
+
+        reporter.add_section(
+            trello_list['name'],
+            [card['name'] for card in old_cards]
+        )
+
+    if len(reporter.sections) == 0:
+        print('(no old cards)')
+        return
+
+    heading = (
+        'The following cards have not been acted upon in some time. '
+        'Please review them.'
+    )
+    report_text = reporter.format(heading)
 
     email_address = os.getenv('REPORT_EMAIL_ADDRESS')
     if email_address is not None:
         print('(sending mail to {})'.format(email_address))
-        result = send_email(email_address, 'Trello Old Cards Report', report)
+        result = send_email(
+            email_address,
+            'Trello Old Cards Report',
+            report_text
+        )
         pprint(result)
     else:
-        print(report)
+        print(report_text)
 
 
 def lambda_handler(event, context):
