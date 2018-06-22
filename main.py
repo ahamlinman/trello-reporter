@@ -17,13 +17,13 @@ def older_than(date_str, delta_spec):
     return datetime.now(tz=date.tzinfo) - date > timedelta(**delta_spec)
 
 
-def run_report(lists):
+def run_report(config):
     trello_key = os.getenv('TRELLO_KEY')
     trello_token = os.getenv('TRELLO_TOKEN')
 
     trello = TrelloClient(trello_key, trello_token)
     reporter = Reporter()
-    for list_spec in lists:
+    for list_spec in config['lists']:
         trello_list = trello.list(list_spec['listId'])
 
         old_cards = [
@@ -66,7 +66,7 @@ def lambda_handler(event, context):
 
 
 if __name__ == '__main__':
-    with open('lists.json', 'r') as f:
-        lists = json.load(f)
+    with open('config.json', 'r') as f:
+        config = json.load(f)
 
-    run_report(lists)
+    run_report(config)
