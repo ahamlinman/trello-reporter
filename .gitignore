@@ -1,4 +1,5 @@
 __pycache__
+configs
 config.json
 env.sh
 lambda-package.zip
