@@ -17,9 +17,9 @@ However, it can also run locally and print reports directly to a terminal.
 
 ## Setup
 
-0. Install [Pipenv](https://docs.pipenv.org/), then run `pipenv install` to
+1. Install [Pipenv](https://docs.pipenv.org/), then run `pipenv install` to
    pull down dependencies.
-0. Get a [Trello API key and token](https://trello.com/app-key).
+2. Get a [Trello API key and token](https://trello.com/app-key).
 
 ### Environment
 
