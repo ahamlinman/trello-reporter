@@ -5,4 +5,4 @@ lambda-package.zip: build.sh $(SRC_FILES)
 
 .PHONY: clean
 clean:
-	rm lambda-package.zip
+	rm -f lambda-package.zip
