@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091
 
 set -euo pipefail
 
@@ -19,19 +20,23 @@ if [ -f "$OUT_FILE" ]; then
   rm "$OUT_FILE"
 fi
 
-mkdir lambda-package-root && cd lambda-package-root
+print_info "Creating production virtualenv"
+python3 -m venv lambda-package-venv
 
-print_info "Copying files from root"
-cp ../*.py .
+print_info "Installing into production virtualenv"
+(. lambda-package-venv/bin/activate; poetry install --no-dev)
 
-print_info "Installing dependencies using pip"
-pip install -r <(cd .. && poetry run pip freeze) -t .
+print_info "Copying core files into build root"
+mkdir lambda-package-root
+cp ./*.py lambda-package-root/
+
+print_info "Installing dependencies into build root"
+pip install -r <(. lambda-package-venv/bin/activate; pip freeze) -t lambda-package-root/
 
 print_info "Creating ZIP package"
-zip -r ../"$OUT_FILE" ./*
+(cd lambda-package-root && zip -r ../"$OUT_FILE" ./*)
 
-print_info "Removing temporary build root"
-cd ..
-rm -r lambda-package-root
+print_info "Removing temporary build files"
+rm -rf lambda-package-root lambda-package-venv
 
 print_header "Done!"
