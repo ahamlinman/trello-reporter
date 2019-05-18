@@ -21,41 +21,35 @@ def older_than(date_str, delta_spec):
 def build_report(config, trello):
     reporter = Reporter()
 
-    for list_spec in config['lists']:
-        trello_list = trello.list(list_spec['listId'])
-
+    for list_spec in config["lists"]:
+        trello_list = trello.list(list_spec["listId"])
         old_cards = [
-            card for card in trello_list['cards']
-            if older_than(card['dateLastActivity'], list_spec['timeDelta'])
+            card
+            for card in trello_list["cards"]
+            if older_than(card["dateLastActivity"], list_spec["timeDelta"])
         ]
+
         if len(old_cards) == 0:
             continue
 
-        reporter.add_section(
-            trello_list['name'],
-            [card['name'] for card in old_cards]
-        )
+        reporter.add_section(trello_list["name"], [card["name"] for card in old_cards])
 
     if len(reporter.sections) == 0:
         return
 
-    return reporter.format(config['heading'])
+    return reporter.format(config["heading"])
 
 
 def run_report(config, email=False):
-    trello = TrelloClient(os.getenv('TRELLO_KEY'), os.getenv('TRELLO_TOKEN'))
+    trello = TrelloClient(os.getenv("TRELLO_KEY"), os.getenv("TRELLO_TOKEN"))
     report_text = build_report(config, trello)
 
     if report_text is None:
-        print('(nothing to report)')
+        print("(nothing to report)")
         return
 
     if email:
-        result = send_email(
-            config['emailAddress'],
-            config['subject'],
-            report_text
-        )
+        result = send_email(config["emailAddress"], config["subject"], report_text)
         pprint(result)
     else:
         print(report_text)
@@ -65,16 +59,23 @@ def lambda_handler(event, context):
     run_report(event, True)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Report on old Trello cards.')
-    parser.add_argument('--config', type=str, default='config.json',
-                        metavar='FILE', help='path to the JSON config file '
-                        '(default: config.json)')
-    parser.add_argument('--email', action='store_true',
-                        help='send an email instead of printing the report')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Report on old Trello cards.")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="config.json",
+        metavar="FILE",
+        help="path to the JSON config file " "(default: config.json)",
+    )
+    parser.add_argument(
+        "--email",
+        action="store_true",
+        help="send an email instead of printing the report",
+    )
     args = parser.parse_args()
 
-    with open(args.config, 'r') as f:
+    with open(args.config, "r") as f:
         config = json.load(f)
 
     run_report(config, args.email)
