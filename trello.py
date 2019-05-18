@@ -16,6 +16,6 @@ class TrelloClient:
             "card_fields": "name,dateLastActivity",
         }
 
-        r = requests.get(url, params=params)
-        r.raise_for_status()
-        return r.json()
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json()

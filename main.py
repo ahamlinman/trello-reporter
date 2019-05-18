@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from pprint import pprint
 import argparse
 import json
@@ -29,13 +29,13 @@ def build_report(config, trello):
             if older_than(card["dateLastActivity"], list_spec["timeDelta"])
         ]
 
-        if len(old_cards) == 0:
+        if not old_cards:
             continue
 
         reporter.add_section(trello_list["name"], [card["name"] for card in old_cards])
 
-    if len(reporter.sections) == 0:
-        return
+    if not reporter.sections:
+        return None
 
     return reporter.format(config["heading"])
 
@@ -55,11 +55,11 @@ def run_report(config, email=False):
         print(report_text)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, _context):
     run_report(event, True)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Report on old Trello cards.")
     parser.add_argument(
         "--config",
@@ -75,7 +75,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    with open(args.config, "r") as f:
-        config = json.load(f)
+    with open(args.config, "r") as config_file:
+        config = json.load(config_file)
 
     run_report(config, args.email)
+
+
+if __name__ == "__main__":
+    main()
