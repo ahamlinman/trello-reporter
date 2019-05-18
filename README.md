@@ -17,7 +17,7 @@ However, it can also run locally and print reports directly to a terminal.
 
 ## Setup
 
-1. Install [Pipenv](https://docs.pipenv.org/), then run `pipenv install` to
+1. Install [Poetry](https://poetry.eustace.io/), then run `poetry install` to
    pull down dependencies.
 2. Get a [Trello API key and token](https://trello.com/app-key).
 
@@ -67,7 +67,7 @@ line if desired.
 With everything set up, simply run the following locally to generate a report:
 
 ```sh
-pipenv run ./main.py
+poetry run ./main.py
 ```
 
 Use `-h` to see available arguments.

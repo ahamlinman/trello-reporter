@@ -25,7 +25,7 @@ print_info "Copying files from root"
 cp ../*.py .
 
 print_info "Installing dependencies using pip"
-pip install -r <(cd .. && pipenv run pip freeze) -t .
+pip install -r <(cd .. && poetry run pip freeze) -t .
 
 print_info "Creating ZIP package"
 zip -r ../"$OUT_FILE" ./*
