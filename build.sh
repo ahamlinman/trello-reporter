@@ -20,18 +20,12 @@ if [ -f "$OUT_FILE" ]; then
   rm "$OUT_FILE"
 fi
 
-print_info "Creating production virtualenv"
-python3 -m venv lambda-package-venv
-
-print_info "Installing into production virtualenv"
-(. lambda-package-venv/bin/activate; poetry install --no-dev)
-
 print_info "Copying core files into build root"
 mkdir lambda-package-root
 cp ./*.py lambda-package-root/
 
 print_info "Installing dependencies into build root"
-pip install -r <(. lambda-package-venv/bin/activate; pip freeze) -t lambda-package-root/
+pip install -r <(poetry export -f requirements.txt) -t lambda-package-root/
 
 print_info "Creating ZIP package"
 (cd lambda-package-root && zip -r ../"$OUT_FILE" ./*)
