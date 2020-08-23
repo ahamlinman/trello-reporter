@@ -83,7 +83,7 @@ Console is as follows:
 * **Code entry type:** Upload a .ZIP file
 * **Function package:** (upload the generated file from above; it should be
   small enough that you won't need to upload to S3)
-* **Runtime:** Python 3.6
+* **Runtime:** Python 3.8
 * **Handler:** `main.lambda_handler`
 * **Environment variables:** `TRELLO_KEY` and `TRELLO_TOKEN` from above
 * **Execution role:** Create an IAM role that allows the SES `SendEmail` action
